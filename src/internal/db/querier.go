@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	AddClient(ctx context.Context, arg AddClientParams) (Client, error)
 	GetClients(ctx context.Context) ([]Client, error)
 }
 
