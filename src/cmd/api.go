@@ -46,6 +46,8 @@ func (a *app) mount() http.Handler {
 	// Create a handler, all handlers must be of the signature w http.ResponseWriter, r *http.Request
 	clientsHandler := clients.NewHandler(clients.NewService(db.New(a.cfg.db.dbQueries)))
 	r.Get("/clients", clientsHandler.GetClients)
+	r.Post("/clients", clientsHandler.AddClient)
+	r.Put("/clients", clientsHandler.UpdateClient)
 
 	return r
 }

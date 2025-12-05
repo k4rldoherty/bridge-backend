@@ -9,7 +9,9 @@ import (
 )
 
 type Querier interface {
+	AddClient(ctx context.Context, arg AddClientParams) (Client, error)
 	GetClients(ctx context.Context) ([]Client, error)
+	UpdateClient(ctx context.Context, arg UpdateClientParams) (Client, error)
 }
 
 var _ Querier = (*Queries)(nil)
