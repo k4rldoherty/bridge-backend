@@ -47,6 +47,7 @@ func (a *app) mount() http.Handler {
 	clientsHandler := clients.NewHandler(clients.NewService(db.New(a.cfg.db.dbQueries)))
 	r.Get("/clients", clientsHandler.GetClients)
 	r.Post("/clients", clientsHandler.AddClient)
+	r.Put("/clients", clientsHandler.UpdateClient)
 
 	return r
 }
