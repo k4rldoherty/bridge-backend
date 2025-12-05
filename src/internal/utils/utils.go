@@ -36,3 +36,8 @@ func ToNullString(s string) sql.NullString {
 		Valid:  true,
 	}
 }
+
+func WriteErrorResponse(w http.ResponseWriter, status int, err error, msg string, location string) {
+	slog.Error(msg, "error", err, "location", location)
+	http.Error(w, msg, status)
+}
