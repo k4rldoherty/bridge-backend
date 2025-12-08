@@ -10,7 +10,9 @@ import (
 
 type Querier interface {
 	AddClient(ctx context.Context, arg AddClientParams) (Client, error)
+	DeleteClient(ctx context.Context, id int32) error
 	GetClients(ctx context.Context) ([]Client, error)
+	ResetDatabase(ctx context.Context) error
 	UpdateClient(ctx context.Context, arg UpdateClientParams) (Client, error)
 }
 

@@ -4,10 +4,10 @@ package clients
 import (
 	"context"
 	"encoding/json"
-	"log/slog"
+	"strconv"
 
 	"github.com/k4rldoherty/brige-backend/src/internal/db"
-	"github.com/k4rldoherty/brige-backend/src/internal/models/dtos"
+	"github.com/k4rldoherty/brige-backend/src/internal/logger"
 	"github.com/k4rldoherty/brige-backend/src/internal/utils"
 )
 
@@ -15,19 +15,21 @@ type Service interface {
 	GetClients(ctx context.Context) ([]db.Client, error)
 	AddClient(ctx context.Context, d []byte) (db.Client, error)
 	UpdateClient(ctx context.Context, d []byte) (db.Client, error)
+	DeleteClient(ctx context.Context, d []byte) error
 }
 
 type svc struct {
-	repo db.Querier
+	repo   db.Querier
+	logger *logger.Logger
 }
 
-func NewService(q db.Querier) Service {
+func NewService(q db.Querier, l *logger.Logger) Service {
 	return &svc{
-		repo: q,
+		repo:   q,
+		logger: l,
 	}
 }
 
-// the service is responsible for handling any business logic related to the request
 func (s *svc) GetClients(ctx context.Context) ([]db.Client, error) {
 	c, err := s.repo.GetClients(ctx)
 	if err != nil {
@@ -38,9 +40,14 @@ func (s *svc) GetClients(ctx context.Context) ([]db.Client, error) {
 
 func (s *svc) AddClient(ctx context.Context, data []byte) (db.Client, error) {
 	// Create a client object by unmarshalling the json
-	c := dtos.CreateClientDTO{}
+	c := CreateClientDTO{}
 	if err := json.Unmarshal(data, &c); err != nil {
-		slog.Error("failed to create client object request body", "error", err, "location", "service.AddClient")
+		s.logger.Error("failed to create client object request body", "error", err, "location", "service.AddClient")
+		return db.Client{}, err
+	}
+
+	if err := c.ValidateInput(); err != nil {
+		s.logger.Error("failed to validate client input", "error", err, "location", "service.AddClient")
 		return db.Client{}, err
 	}
 
@@ -61,9 +68,14 @@ func (s *svc) AddClient(ctx context.Context, data []byte) (db.Client, error) {
 }
 
 func (s *svc) UpdateClient(ctx context.Context, data []byte) (db.Client, error) {
-	c := dtos.UpdateClientDTO{}
+	c := UpdateClientDTO{}
 	if err := json.Unmarshal(data, &c); err != nil {
-		slog.Error("failed to create client object from request body", "error", err, "location", "service.UpdateClient")
+		s.logger.Error("failed to create client object from request body", "error", err, "location", "service.UpdateClient")
+		return db.Client{}, err
+	}
+
+	if err := c.ValidateInput(); err != nil {
+		s.logger.Error("failed to validate client input", "error", err, "location", "service.UpdateClient")
 		return db.Client{}, err
 	}
 
@@ -80,4 +92,18 @@ func (s *svc) UpdateClient(ctx context.Context, data []byte) (db.Client, error) 
 	}
 
 	return updatedClient, nil
+}
+
+func (s *svc) DeleteClient(ctx context.Context, data []byte) error {
+	id, err := strconv.Atoi(string(data))
+	if err != nil {
+		s.logger.Error("failed to parse client id from request body", "error", err, "location", "service.DeleteClient")
+		return err
+	}
+	err = s.repo.DeleteClient(ctx, int32(id))
+	if err != nil {
+		s.logger.Error("failed to delete client", "error", err, "location", "service.DeleteClient")
+		return err
+	}
+	return nil
 }
