@@ -4,7 +4,6 @@ package clients
 import (
 	"context"
 	"encoding/json"
-	"math"
 	"net/http"
 	"strconv"
 
@@ -74,9 +73,8 @@ func (s *svc) UpdateClient(ctx context.Context, data []byte) (db.Client, *utils.
 		s.logger.Error("failed to validate client input", "error", err, "location", "service.UpdateClient")
 		return db.Client{}, err
 	}
-
 	params := db.UpdateClientParams{
-		ID:      int32(c.ID),
+		ID:      c.ID,
 		Name:    c.Name,
 		Email:   c.Email,
 		LogoUrl: utils.ToNullString(c.LogoURL),
@@ -93,20 +91,13 @@ func (s *svc) UpdateClient(ctx context.Context, data []byte) (db.Client, *utils.
 	return updatedClient, nil
 }
 
-func (s *svc) DeleteClient(ctx context.Context, data []byte) *utils.APIError {
-	id, err := strconv.Atoi(string(data))
+func (s *svc) DeleteClient(ctx context.Context, data string) *utils.APIError {
+	id, err := strconv.ParseInt(data, 10, 32)
 	if err != nil {
 		s.logger.Error("failed to parse client id from request body", "error", err, "location", "service.DeleteClient")
 		return &utils.APIError{
 			Status:  http.StatusInternalServerError,
 			Message: err.Error(),
-		}
-	}
-	if id < 1 || id > math.MaxInt32 || id < math.MinInt32 {
-		s.logger.Error("failed to parse client id from request body", "error", "id is required and must be a valid number greater than 0, and inside the int32 range", "location", "service.DeleteClient")
-		return &utils.APIError{
-			Status:  http.StatusBadRequest,
-			Message: "id is required and must be a valid number greater than 0, and inside the int32 range",
 		}
 	}
 	err = s.repo.DeleteClient(ctx, int32(id))

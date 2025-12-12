@@ -73,7 +73,7 @@ func (h *handler) DeleteClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.service.DeleteClient(r.Context(), []byte(id))
+	err := h.service.DeleteClient(r.Context(), id)
 	if err != nil {
 		http.Error(w, err.Message, err.Status)
 		return

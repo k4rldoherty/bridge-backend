@@ -41,7 +41,7 @@ func TestCreateClientDTOValidateInput(t *testing.T) {
 func TestUpdateClientDTOValidateInput(t *testing.T) {
 	tests := []struct {
 		name       string
-		id         int
+		id         int32
 		clientName string
 		email      string
 		logoURL    string
