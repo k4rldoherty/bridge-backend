@@ -50,7 +50,7 @@ func TestUpdateClientDTOValidateInput(t *testing.T) {
 	}{
 		{"valid all fields", 1, "test", "test@test.com", "www.test.com", false, ""},
 		{"valid no logo url", 2, "test", "test@test.com", "", false, ""},
-		{"invalid invalid id", 0, "test", "test@test.com", "", true, "id is required and must be a valid number greater than 0"},
+		{"invalid invalid id", 0, "test", "test@test.com", "", true, "id is required and must be a valid number greater than 0, and inside the int32 range"},
 		{"invalid no email", 3, "test", "", "test", true, "email is required"},
 	}
 

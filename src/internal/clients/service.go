@@ -4,6 +4,7 @@ package clients
 import (
 	"context"
 	"encoding/json"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -99,6 +100,13 @@ func (s *svc) DeleteClient(ctx context.Context, data []byte) *utils.APIError {
 		return &utils.APIError{
 			Status:  http.StatusInternalServerError,
 			Message: err.Error(),
+		}
+	}
+	if id < 1 || id > math.MaxInt32 || id < math.MinInt32 {
+		s.logger.Error("failed to parse client id from request body", "error", "id is required and must be a valid number greater than 0, and inside the int32 range", "location", "service.DeleteClient")
+		return &utils.APIError{
+			Status:  http.StatusBadRequest,
+			Message: "id is required and must be a valid number greater than 0, and inside the int32 range",
 		}
 	}
 	err = s.repo.DeleteClient(ctx, int32(id))

@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"math"
 	"net/http"
 
 	"github.com/k4rldoherty/brige-backend/src/internal/db"
@@ -63,10 +64,10 @@ func (c CreateClientDTO) ValidateInput() *utils.APIError {
 }
 
 func (c UpdateClientDTO) ValidateInput() *utils.APIError {
-	if c.ID < 1 {
+	if c.ID < 1 || c.ID > math.MaxInt32 || c.ID < math.MinInt32 {
 		return &utils.APIError{
 			Status:  http.StatusBadRequest,
-			Message: "id is required and must be a valid number greater than 0",
+			Message: "id is required and must be a valid number greater than 0, and inside the int32 range",
 		}
 	}
 	if c.Email == "" {
