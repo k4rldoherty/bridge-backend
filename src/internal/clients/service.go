@@ -73,9 +73,8 @@ func (s *svc) UpdateClient(ctx context.Context, data []byte) (db.Client, *utils.
 		s.logger.Error("failed to validate client input", "error", err, "location", "service.UpdateClient")
 		return db.Client{}, err
 	}
-
 	params := db.UpdateClientParams{
-		ID:      int32(c.ID),
+		ID:      c.ID,
 		Name:    c.Name,
 		Email:   c.Email,
 		LogoUrl: utils.ToNullString(c.LogoURL),
@@ -92,8 +91,8 @@ func (s *svc) UpdateClient(ctx context.Context, data []byte) (db.Client, *utils.
 	return updatedClient, nil
 }
 
-func (s *svc) DeleteClient(ctx context.Context, data []byte) *utils.APIError {
-	id, err := strconv.Atoi(string(data))
+func (s *svc) DeleteClient(ctx context.Context, data string) *utils.APIError {
+	id, err := strconv.ParseInt(data, 10, 32)
 	if err != nil {
 		s.logger.Error("failed to parse client id from request body", "error", err, "location", "service.DeleteClient")
 		return &utils.APIError{

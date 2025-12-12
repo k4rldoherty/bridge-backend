@@ -13,7 +13,7 @@ type Service interface {
 	GetClients(ctx context.Context) ([]db.Client, *utils.APIError)
 	AddClient(ctx context.Context, d []byte) (db.Client, *utils.APIError)
 	UpdateClient(ctx context.Context, d []byte) (db.Client, *utils.APIError)
-	DeleteClient(ctx context.Context, d []byte) *utils.APIError
+	DeleteClient(ctx context.Context, d string) *utils.APIError
 }
 
 type svc struct {
@@ -34,7 +34,7 @@ type CreateClientDTO struct {
 }
 
 type UpdateClientDTO struct {
-	ID      int    `json:"id"`
+	ID      int32  `json:"id"`
 	Email   string `json:"email"`
 	Name    string `json:"name"`
 	LogoURL string `json:"logo_url"`
@@ -66,7 +66,7 @@ func (c UpdateClientDTO) ValidateInput() *utils.APIError {
 	if c.ID < 1 {
 		return &utils.APIError{
 			Status:  http.StatusBadRequest,
-			Message: "id is required and must be a valid number greater than 0",
+			Message: "id is required and must be a valid number greater than 0, and inside the int32 range",
 		}
 	}
 	if c.Email == "" {
