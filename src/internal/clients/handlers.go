@@ -5,41 +5,45 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/k4rldoherty/brige-backend/src/internal/logger"
 	"github.com/k4rldoherty/brige-backend/src/internal/utils"
 )
 
-type handler struct {
-	service Service
+func NewHandler(service Service, logger *logger.Logger) *handler {
+	return &handler{service: service, logger: logger}
 }
 
-func NewHandler(service Service) *handler {
-	return &handler{service: service}
-}
-
-// the handler is responsible for handling the request and returning a response
 func (h *handler) GetClients(w http.ResponseWriter, r *http.Request) {
 	c, err := h.service.GetClients(r.Context())
 	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, err, "failed to get clients", "handlers.GetClients")
+		http.Error(w, err.Message, err.Status)
 		return
+	}
+
+	if len(c) == 0 {
+		utils.Write(w, http.StatusNoContent, nil)
 	}
 
 	utils.Write(w, http.StatusOK, c)
 }
 
 func (h *handler) AddClient(w http.ResponseWriter, r *http.Request) {
-	// Read in the body to a buffer
-	d, err := io.ReadAll(r.Body)
-	defer utils.CloseRequestBody(r)
-	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, err, "failed to parse body", "handlers.AddClient")
+	d, e := io.ReadAll(r.Body)
+	defer utils.CloseRequestBody(r, h.logger)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Call the service to add the client
+	if d == nil {
+		http.Error(w, "no data provided", http.StatusBadRequest)
+		return
+	}
+
 	c, err := h.service.AddClient(r.Context(), d)
 	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, err, "failed to add client", "handlers.AddClient")
+		http.Error(w, err.Message, err.Status)
 		return
 	}
 
@@ -47,17 +51,33 @@ func (h *handler) AddClient(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) UpdateClient(w http.ResponseWriter, r *http.Request) {
-	d, err := io.ReadAll(r.Body)
-	defer utils.CloseRequestBody(r)
-	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, err, "failed to parse body", "handlers.UpdateClient")
+	d, e := io.ReadAll(r.Body)
+	defer utils.CloseRequestBody(r, h.logger)
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusInternalServerError)
 		return
 	}
 	c, err := h.service.UpdateClient(r.Context(), d)
 	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, err, "failed to update client", "handlers.UpdateClient")
+		http.Error(w, err.Message, err.Status)
 		return
 	}
 
 	utils.Write(w, http.StatusOK, c)
+}
+
+func (h *handler) DeleteClient(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		http.Error(w, "could not parse id from path", http.StatusInternalServerError)
+		return
+	}
+
+	err := h.service.DeleteClient(r.Context(), []byte(id))
+	if err != nil {
+		http.Error(w, err.Message, err.Status)
+		return
+	}
+
+	utils.Write(w, http.StatusOK, nil)
 }
