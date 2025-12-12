@@ -41,13 +41,15 @@ func (q *Queries) AddClient(ctx context.Context, arg AddClientParams) (Client, e
 	return i, err
 }
 
-const deleteClient = `-- name: DeleteClient :exec
+const deleteClient = `-- name: DeleteClient :one
 DELETE FROM clients WHERE id = $1 RETURNING name
 `
 
-func (q *Queries) DeleteClient(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteClient, id)
-	return err
+func (q *Queries) DeleteClient(ctx context.Context, id int32) (string, error) {
+	row := q.db.QueryRowContext(ctx, deleteClient, id)
+	var name string
+	err := row.Scan(&name)
+	return name, err
 }
 
 const getClients = `-- name: GetClients :many
