@@ -1,4 +1,4 @@
-// Package utils - A collection of utility functions that i keep using
+// Package utils - A collection of utility functions/types that i use across packages
 package utils
 
 import (
@@ -8,6 +8,11 @@ import (
 
 	"github.com/k4rldoherty/brige-backend/src/internal/logger"
 )
+
+type APIError struct {
+	Status  int
+	Message string
+}
 
 // CloseRequestBody closes the request body, logging any errors
 func CloseRequestBody(r *http.Request, l *logger.Logger) {
