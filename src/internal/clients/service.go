@@ -100,7 +100,7 @@ func (s *svc) DeleteClient(ctx context.Context, data string) *utils.APIError {
 			Message: err.Error(),
 		}
 	}
-	err = s.repo.DeleteClient(ctx, int32(id))
+	_, err = s.repo.DeleteClient(ctx, int32(id))
 	if err != nil {
 		s.logger.Error("failed to delete client", "error", err, "location", "service.DeleteClient")
 		return &utils.APIError{

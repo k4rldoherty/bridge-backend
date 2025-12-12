@@ -6,12 +6,16 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
 	AddClient(ctx context.Context, arg AddClientParams) (Client, error)
-	DeleteClient(ctx context.Context, id int32) error
+	AddUser(ctx context.Context, arg AddUserParams) (User, error)
+	DeleteClient(ctx context.Context, id int32) (string, error)
+	DeleteUser(ctx context.Context, id int32) (string, error)
 	GetClients(ctx context.Context) ([]Client, error)
+	GetUsersByClientID(ctx context.Context, clientID sql.NullInt32) ([]GetUsersByClientIDRow, error)
 	ResetDatabase(ctx context.Context) error
 	UpdateClient(ctx context.Context, arg UpdateClientParams) (Client, error)
 }

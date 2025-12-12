@@ -1,3 +1,4 @@
+![CI Status](https://github.com/k4rldoherty/bridge-backend/actions/workflows/ci.yml/badge.svg)
 # Bridge
 
 ## Overview

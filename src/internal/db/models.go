@@ -18,3 +18,20 @@ type Client struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt sql.NullTime   `json:"updated_at"`
 }
+
+type Role struct {
+	ID   int32  `json:"id"`
+	Role string `json:"role"`
+}
+
+type User struct {
+	ID        int32         `json:"id"`
+	ClientID  sql.NullInt32 `json:"client_id"`
+	RoleID    sql.NullInt32 `json:"role_id"`
+	Name      string        `json:"name"`
+	Email     string        `json:"email"`
+	Password  string        `json:"password"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt sql.NullTime  `json:"updated_at"`
+	LastLogin sql.NullTime  `json:"last_login"`
+}
