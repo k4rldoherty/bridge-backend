@@ -10,6 +10,11 @@ import (
 	"github.com/k4rldoherty/brige-backend/src/internal/utils"
 )
 
+type handler struct {
+	service Service
+	logger  *logger.Logger
+}
+
 func NewHandler(service Service, logger *logger.Logger) *handler {
 	return &handler{service: service, logger: logger}
 }

@@ -12,11 +12,16 @@ import (
 	"github.com/k4rldoherty/brige-backend/src/internal/utils"
 )
 
-func NewService(q db.Querier, l *logger.Logger) Service {
-	return &svc{
-		repo:   q,
-		logger: l,
-	}
+type Service interface {
+	GetClients(ctx context.Context) ([]db.Client, *utils.APIError)
+	AddClient(ctx context.Context, d []byte) (db.Client, *utils.APIError)
+	UpdateClient(ctx context.Context, d []byte) (db.Client, *utils.APIError)
+	DeleteClient(ctx context.Context, d string) *utils.APIError
+}
+
+type svc struct {
+	repo   db.Querier
+	logger *logger.Logger
 }
 
 func (s *svc) GetClients(ctx context.Context) ([]db.Client, *utils.APIError) {

@@ -1,30 +1,12 @@
 package clients
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/k4rldoherty/brige-backend/src/internal/db"
 	"github.com/k4rldoherty/brige-backend/src/internal/logger"
 	"github.com/k4rldoherty/brige-backend/src/internal/utils"
 )
-
-type Service interface {
-	GetClients(ctx context.Context) ([]db.Client, *utils.APIError)
-	AddClient(ctx context.Context, d []byte) (db.Client, *utils.APIError)
-	UpdateClient(ctx context.Context, d []byte) (db.Client, *utils.APIError)
-	DeleteClient(ctx context.Context, d string) *utils.APIError
-}
-
-type svc struct {
-	repo   db.Querier
-	logger *logger.Logger
-}
-
-type handler struct {
-	service Service
-	logger  *logger.Logger
-}
 
 type CreateClientDTO struct {
 	Name     string `json:"name"`
@@ -38,6 +20,13 @@ type UpdateClientDTO struct {
 	Email   string `json:"email"`
 	Name    string `json:"name"`
 	LogoURL string `json:"logo_url"`
+}
+
+func NewService(q db.Querier, l *logger.Logger) Service {
+	return &svc{
+		repo:   q,
+		logger: l,
+	}
 }
 
 func (c CreateClientDTO) ValidateInput() *utils.APIError {
